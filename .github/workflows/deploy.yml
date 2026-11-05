@@ -25,24 +25,26 @@ jobs:
             set -e
             echo "🚀 Iniciando deploy de agenda.uzila.com.br..."
 
-            # Carrega ambiente Node do NVM ou sistema
             export PATH=$PATH:/usr/bin:/usr/local/bin:$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -n 1)/bin
-
             TARGET_DIR="/var/www/agenda.uzila.com.br"
+            REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
             mkdir -p "$TARGET_DIR"
             cd "$TARGET_DIR"
 
-            # Se ainda não for repositório git, clona o repo atual
+            # Se ainda não for repositório git, inicializa e clona
             if [ ! -d ".git" ]; then
               echo "Clonando repositório..."
-              git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
+              git clone "$REPO_URL" .
             else
               echo "Atualizando código com git pull..."
+              git remote set-url origin "$REPO_URL"
               git fetch origin main
               git reset --hard origin/main
+              git remote set-url origin "https://github.com/${{ github.repository }}.git"
             fi
 
-            # Injeta variáveis de ambiente de produção se configuradas no GitHub Secrets
+            # Injeta variáveis de ambiente de produção
             if [ -n "${{ secrets.VITE_SUPABASE_URL }}" ]; then
               echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" > .env
               echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env
@@ -54,8 +56,7 @@ jobs:
             echo "Gerando build de produção..."
             npm run build
 
-            # Permissões para o Nginx ler os arquivos
+            # Permissões para o Nginx ler os arquivos estáticos
             chmod -R 755 "$TARGET_DIR/dist" 2>/dev/null || true
-            chown -R www-data:www-data "$TARGET_DIR/dist" 2>/dev/null || true
 
             echo "✅ Deploy de agenda.uzila.com.br concluído com sucesso!"
