@@ -11,7 +11,8 @@ import {
   LayoutGrid,
   Columns,
   Square,
-  ListFilter
+  ListFilter,
+  Sparkles
 } from 'lucide-react'
 import type { CalendarViewMode, UserProfile } from '../types/calendar'
 import { format } from 'date-fns'
@@ -213,6 +214,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <SlidersHorizontal className="w-4 h-4" />
           </button>
+
+          {/* Link para os Planos da Uzila */}
+          <a
+            href="https://uzila.com.br/#planos"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary transition-all text-xs font-semibold shadow-xs"
+            title="Conheça os planos da Uzila"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Planos</span>
+          </a>
 
           {/* Perfil do Usuário Gmail / Google */}
           {user && (
